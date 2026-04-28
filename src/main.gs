@@ -15,8 +15,11 @@ function runMigrationCheck() {
   const oldUsers = fetchWorkspaceUsers(oldToken, "old");
   const newUsers = fetchWorkspaceUsers(newToken, "new");
 
+  const filteredOldUsers = oldUsers.filter(
+    (user) => !excludedEmailSet.has((user.email || "").toLowerCase()),
+  );
   const newUsersByName = buildNewWorkspaceNameMap(newUsers, excludedEmailSet);
-  const rows = buildMigrationResultRows(oldUsers, newUsersByName);
+  const rows = buildMigrationResultRows(filteredOldUsers, newUsersByName);
 
   writeMigrationResults(rows, SHEET_NAME_RESULT);
   Logger.log("runMigrationCheck finished. rowCount=" + rows.length);
