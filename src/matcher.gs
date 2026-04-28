@@ -17,12 +17,19 @@ function buildNewWorkspaceNameMap(newUsers, excludedEmailSet) {
   return map;
 }
 
-function buildMigrationResultRows(oldUsers, newUsersByName) {
+function buildMigrationResultRows(oldUsers, newUsersByName, nameMapping) {
   const rows = [];
 
   for (let i = 0; i < oldUsers.length; i += 1) {
     const oldUser = oldUsers[i];
-    const key = normalizeName(oldUser.name);
+
+    // 修正ルールがあれば適用
+    const correctedName =
+      nameMapping && nameMapping.has(oldUser.name)
+        ? nameMapping.get(oldUser.name)
+        : oldUser.name;
+
+    const key = normalizeName(correctedName);
     const matchedUsers = newUsersByName.get(key) || [];
 
     if (matchedUsers.length === 0) {

@@ -137,3 +137,51 @@ function applyMigrationResultSheetFormatting(sheet, rowCount, columnCount) {
   }
   dataRange.createFilter();
 }
+
+function getNameMappingRules(sheetName) {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = spreadsheet.getSheetByName(sheetName);
+  if (!sheet) {
+    return new Map();
+  }
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    return new Map();
+  }
+
+  const values = sheet.getRange(2, 1, lastRow - 1, 2).getValues();
+  const mapping = new Map();
+
+  for (let i = 0; i < values.length; i += 1) {
+    const oldName = (values[i][0] || "").toString().trim();
+    const newName = (values[i][1] || "").toString().trim();
+
+    if (oldName && newName) {
+      mapping.set(oldName, newName);
+    }
+  }
+
+  return mapping;
+}
+
+function ensureNameMappingSheet(sheetName) {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = spreadsheet.getSheetByName(sheetName);
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(sheetName);
+    sheet
+      .getRange(1, 1, 1, NAME_MAPPING_HEADER.length)
+      .setValues([NAME_MAPPING_HEADER])
+      .setFontWeight("bold")
+      .setBackground("#1f4e78")
+      .setFontColor("#ffffff");
+
+    sheet.setColumnWidth(1, 180);
+    sheet.setColumnWidth(2, 180);
+    sheet.setColumnWidth(3, 220);
+  }
+
+  return sheet;
+}

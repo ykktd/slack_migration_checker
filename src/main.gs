@@ -10,7 +10,11 @@ function runMigrationCheck() {
   const oldToken = requireScriptProperty(scriptProperties, "SLACK_TOKEN_OLD");
   const newToken = requireScriptProperty(scriptProperties, "SLACK_TOKEN_NEW");
 
+  // 修正ルールシートを初期化（存在しなければ作成）
+  ensureNameMappingSheet(SHEET_NAME_NAME_MAPPING);
+
   const excludedEmailSet = getExcludedEmailSet(SHEET_NAME_EXCLUSION);
+  const nameMapping = getNameMappingRules(SHEET_NAME_NAME_MAPPING);
   const oldUsers = fetchWorkspaceUsers(oldToken, "old");
   const newUsers = fetchWorkspaceUsers(newToken, "new");
 
@@ -18,7 +22,11 @@ function runMigrationCheck() {
     (user) => !excludedEmailSet.has((user.email || "").toLowerCase()),
   );
   const newUsersByName = buildNewWorkspaceNameMap(newUsers, excludedEmailSet);
-  const rows = buildMigrationResultRows(filteredOldUsers, newUsersByName);
+  const rows = buildMigrationResultRows(
+    filteredOldUsers,
+    newUsersByName,
+    nameMapping,
+  );
 
   writeMigrationResults(rows, SHEET_NAME_RESULT);
   Logger.log("runMigrationCheck finished. rowCount=" + rows.length);
