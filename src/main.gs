@@ -1,7 +1,6 @@
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("Slack移行チェック")
-    .addItem("除外リストを新WSユーザーで更新", "menuExportExclusionList")
     .addItem("移行チェックを実行", "menuRunMigrationCheck")
     .addToUi();
 }
