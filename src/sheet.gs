@@ -79,8 +79,61 @@ function writeMigrationResults(resultRows, sheetName) {
     sheet = spreadsheet.insertSheet(sheetName);
   }
 
-  sheet.clearContents();
+  sheet.clear();
 
   const output = [RESULT_HEADER].concat(resultRows);
   sheet.getRange(1, 1, output.length, RESULT_HEADER.length).setValues(output);
+
+  applyMigrationResultSheetFormatting(
+    sheet,
+    output.length,
+    RESULT_HEADER.length,
+  );
+}
+
+function applyMigrationResultSheetFormatting(sheet, rowCount, columnCount) {
+  if (rowCount <= 0 || columnCount <= 0) {
+    return;
+  }
+
+  sheet.setFrozenRows(1);
+  sheet
+    .getRange(1, 1, 1, columnCount)
+    .setFontWeight("bold")
+    .setBackground("#1f4e78")
+    .setFontColor("#ffffff");
+
+  if (rowCount > 1) {
+    sheet
+      .getRange(2, 1, rowCount - 1, columnCount)
+      .setWrap(true)
+      .setVerticalAlignment("middle");
+
+    const bodyBackgrounds = [];
+    for (let rowIndex = 1; rowIndex < rowCount; rowIndex += 1) {
+      const status = sheet.getRange(rowIndex + 1, 1).getValue();
+      const backgroundColor = RESULT_STATUS_COLORS[status] || "#ffffff";
+      const rowBackground = [];
+      for (let columnIndex = 0; columnIndex < columnCount; columnIndex += 1) {
+        rowBackground.push(backgroundColor);
+      }
+      bodyBackgrounds.push(rowBackground);
+    }
+
+    sheet
+      .getRange(2, 1, rowCount - 1, columnCount)
+      .setBackgrounds(bodyBackgrounds);
+  }
+
+  sheet.setColumnWidth(1, 180);
+  sheet.setColumnWidth(2, 180);
+  sheet.setColumnWidth(3, 220);
+  sheet.setColumnWidth(4, 180);
+  sheet.setColumnWidth(5, 220);
+
+  const dataRange = sheet.getRange(1, 1, rowCount, columnCount);
+  if (sheet.getFilter()) {
+    sheet.getFilter().remove();
+  }
+  dataRange.createFilter();
 }

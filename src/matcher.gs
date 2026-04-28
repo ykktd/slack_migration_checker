@@ -59,5 +59,40 @@ function buildMigrationResultRows(oldUsers, newUsersByName) {
     }
   }
 
+  rows.sort(function (left, right) {
+    const leftStatus = left[0] || "";
+    const rightStatus = right[0] || "";
+    const leftOrder = Object.prototype.hasOwnProperty.call(
+      RESULT_STATUS_ORDER,
+      leftStatus,
+    )
+      ? RESULT_STATUS_ORDER[leftStatus]
+      : Number.MAX_SAFE_INTEGER;
+    const rightOrder = Object.prototype.hasOwnProperty.call(
+      RESULT_STATUS_ORDER,
+      rightStatus,
+    )
+      ? RESULT_STATUS_ORDER[rightStatus]
+      : Number.MAX_SAFE_INTEGER;
+
+    if (leftOrder !== rightOrder) {
+      return leftOrder - rightOrder;
+    }
+
+    const leftOldName = (left[1] || "").toString();
+    const rightOldName = (right[1] || "").toString();
+    if (leftOldName !== rightOldName) {
+      return leftOldName.localeCompare(rightOldName, "ja");
+    }
+
+    const leftNewName = (left[3] || "").toString();
+    const rightNewName = (right[3] || "").toString();
+    if (leftNewName !== rightNewName) {
+      return leftNewName.localeCompare(rightNewName, "ja");
+    }
+
+    return ((left[4] || "") + "").localeCompare((right[4] || "") + "", "ja");
+  });
+
   return rows;
 }

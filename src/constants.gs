@@ -13,6 +13,20 @@ const STATUS_BAD_EMAIL = "メアド不正";
 const STATUS_NOT_MIGRATED = "未移行";
 const STATUS_UNMATCHED_NEW_ONLY = "照合不可（新WSのみ存在）";
 
+const RESULT_STATUS_ORDER = {
+  [STATUS_NOT_MIGRATED]: 0,
+  [STATUS_BAD_EMAIL]: 1,
+  [STATUS_UNMATCHED_NEW_ONLY]: 2,
+  [STATUS_OK]: 3,
+};
+
+const RESULT_STATUS_COLORS = {
+  [STATUS_NOT_MIGRATED]: "#f4cccc",
+  [STATUS_BAD_EMAIL]: "#fce5cd",
+  [STATUS_UNMATCHED_NEW_ONLY]: "#fff2cc",
+  [STATUS_OK]: "#d9ead3",
+};
+
 const RESULT_HEADER = [
   "判定ステータス",
   "旧WS 氏名",
