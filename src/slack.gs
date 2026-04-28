@@ -5,18 +5,20 @@ function fetchWorkspaceUsers(token, workspaceLabel) {
 
   const users = [];
   let cursor = "";
+  let isFirstPage = true;
 
   do {
+    if (!isFirstPage) {
+      Utilities.sleep(SLACK_USERS_LIST_PAGE_DELAY_MS);
+    }
+
     const url =
-      "https://slack.com/api/users.list?limit=200&cursor=" +
+      "https://slack.com/api/users.list?limit=" +
+      SLACK_USERS_LIST_LIMIT +
+      "&cursor=" +
       encodeURIComponent(cursor);
-    const response = UrlFetchApp.fetch(url, {
-      method: "get",
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-      muteHttpExceptions: true,
-    });
+
+    const response = fetchSlackUsersPageWithRetry(url, token, workspaceLabel);
 
     const statusCode = response.getResponseCode();
     const bodyText = response.getContentText();
@@ -64,7 +66,39 @@ function fetchWorkspaceUsers(token, workspaceLabel) {
     cursor =
       (payload.response_metadata && payload.response_metadata.next_cursor) ||
       "";
+    isFirstPage = false;
   } while (cursor);
 
   return users;
+}
+
+function fetchSlackUsersPageWithRetry(url, token, workspaceLabel) {
+  const maxAttempts = 3;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return UrlFetchApp.fetch(url, {
+        method: "get",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+        muteHttpExceptions: true,
+      });
+    } catch (error) {
+      const message = (error && error.message) || String(error);
+      const isBandwidthError =
+        message.indexOf("帯域幅の上限") !== -1 ||
+        message.toLowerCase().indexOf("bandwidth") !== -1;
+
+      if (!isBandwidthError || attempt === maxAttempts) {
+        throw new Error(
+          "Slack API fetch error (" + workspaceLabel + "): " + message,
+        );
+      }
+
+      Utilities.sleep(SLACK_USERS_LIST_RETRY_DELAY_MS * attempt);
+    }
+  }
+
+  throw new Error("Slack API fetch failed: " + workspaceLabel);
 }
