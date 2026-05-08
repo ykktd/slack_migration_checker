@@ -1,4 +1,4 @@
-const MAIL_RULE_SUFFIX = "17th.fw@gmail.com";
+const MAIL_RULE_SUFFIX = ".17th.fw@gmail.com";
 const SLACK_USERS_LIST_LIMIT = 100;
 const SLACK_USERS_LIST_PAGE_DELAY_MS = 1000;
 const SLACK_USERS_LIST_RETRY_DELAY_MS = 3000;

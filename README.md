@@ -136,7 +136,7 @@ exportCurrentNewUsersToExclusionList();
 - 氏名は正規化して照合します（空白除去など）
 - 同姓同名がいる場合は1名ずつ割り当てて判定します
 - メールアドレスの判定は `MAIL_RULE_SUFFIX` で行います
-  - 現在値: `17th.fw@gmail.com`
+  - 現在値: `.17th.fw@gmail.com`
 
 ## 6. 名前修正ルール（氏名ゆれの対応）
 
